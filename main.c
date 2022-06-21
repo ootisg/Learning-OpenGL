@@ -13,15 +13,10 @@
 #define WINDOW_RESOLUTION_HEIGHT 720
 
 float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
-};
-unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
-};  
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+}; 
 
 scene render_scene;
 
@@ -31,11 +26,10 @@ void framebuffer_size_callback (GLFWwindow* window, int width, int height) {
 
 void init () {
 	render_init (&render_scene);
-	render_scene.program = get_default_shader_program ();
+	render_scene.program = make_program_from_files ("vertex_shader.glsl", NULL, "frag_shader.glsl");
 	glGenVertexArrays (1, &(render_scene.vao));
 	glBindVertexArray (render_scene.vao);
 	VBO* vertex_vbo = VBO_init (malloc (sizeof (VBO)), vertices, sizeof (vertices), GL_ARRAY_BUFFER);
-	VBO* element_vbo = VBO_init (malloc (sizeof (VBO)), indices, sizeof (indices), GL_ELEMENT_ARRAY_BUFFER);
 	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 }
