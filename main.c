@@ -38,6 +38,7 @@ int main () {
 	
 	//Initialize GLFW
     glfwInit ();
+	printf ("GLFW Initialized\n");
 	
 	//Set the window hints
     glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
