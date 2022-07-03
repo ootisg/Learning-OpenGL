@@ -28,6 +28,6 @@ void render_frame (scene* render_scene) {
 	glUniform1i (glGetUniformLocation (render_scene->program, "ourTexture"), 0);
 	
 	//Render the vertices
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	
 }

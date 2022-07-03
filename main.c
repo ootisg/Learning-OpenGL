@@ -14,10 +14,17 @@
 #define WINDOW_RESOLUTION_HEIGHT 720
 
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-     0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f
-}; 
+    // positions          // colors           // texture coords
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
+};
+
+int elems[] = {
+	0, 1, 2,
+	2, 3, 0
+};
 
 scene render_scene;
 
@@ -31,7 +38,8 @@ void init () {
 	glGenVertexArrays (1, &(render_scene.vao));
 	glBindVertexArray (render_scene.vao);
 	VBO* vertex_vbo = VBO_init (malloc (sizeof (VBO)), vertices, sizeof (vertices), GL_ARRAY_BUFFER);
-	texture* tex = texture_load_from_file (malloc (sizeof (texture)), "resources/wall.jpg");
+	VBO* vertex_elem_vbo = VBO_init (malloc (sizeof (VBO)), elems, sizeof (elems), GL_ELEMENT_ARRAY_BUFFER);
+	texture* tex = texture_load_from_file (malloc (sizeof (texture)), "resources/container.jpg");
 	glActiveTexture (GL_TEXTURE0);
 	glBindTexture (GL_TEXTURE_2D, tex->texture_id);
 	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
