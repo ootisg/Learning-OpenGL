@@ -25,6 +25,7 @@ void render_frame (scene* render_scene) {
 	glBindVertexArray (render_scene->vao);
 	
 	//Set uniforms
+	glUniform1i (glGetUniformLocation (render_scene->program, "ourTexture"), 0);
 	
 	//Render the vertices
 	glDrawArrays(GL_TRIANGLES, 0, 3);
