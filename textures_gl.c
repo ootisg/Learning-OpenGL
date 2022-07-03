@@ -3,13 +3,28 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+texture* texture_table[16]; //TODO update to query max texture units
+
+void textures_init () {
+	
+	//Initialize the texture table
+	int i;
+	for (i = 0; i < 16; i++) { //TODO update to query max texture units
+		texture_table[i] = NULL;
+	}
+	
+	//Configure stbi_image.h
+	stbi_set_flip_vertically_on_load (1);
+	
+}
+
 texture* texture_load_from_file (void* loc, char* file_path) {
 	
 	//Cast to texture
 	texture* tex = (texture*)loc; 
 	
 	//Load the image from the given filepath
-	tex->img_data = stbi_load (file_path, &(tex->img_width), &(tex->img_height), &(tex->num_channels), 3);
+	tex->img_data = stbi_load (file_path, &(tex->img_width), &(tex->img_height), &(tex->num_channels), 4);
 	printf ("%d, %d\n", tex->img_width, tex->img_height);
 	
 	//Allocate and bind the OpenGL texture
@@ -25,11 +40,11 @@ texture* texture_load_from_file (void* loc, char* file_path) {
 	//Fill the texture data
 	glTexImage2D (	GL_TEXTURE_2D,
 					0,
-					GL_RGB,
+					GL_RGBA,
 					tex->img_width,
 					tex->img_height,
 					0,
-					GL_RGB,
+					GL_RGBA,
 					GL_UNSIGNED_BYTE,
 					tex->img_data );
 					
@@ -45,12 +60,23 @@ texture* texture_load_from_file (void* loc, char* file_path) {
 	
 }
 
-GLuint texture_enable (texture* tex) {
-	
+int texture_enable (texture* tex) {
+	int i;
+	for (i = 0; i < 16; i++) { //TODO magic number
+		if (texture_table[i] == NULL) {
+			glActiveTexture (GL_TEXTURE0 + i);
+			glBindTexture (GL_TEXTURE_2D, tex->texture_id);
+			tex->texture_unit_idx = i;
+			texture_table[i] = tex;
+			return 1;
+		}
+	}
+	return 0;
 }
 
-GLuint texture_disable (texture* tex) {
-	
+int texture_disable (texture* tex) {
+	texture_table[tex->texture_unit_idx] = NULL;
+	tex->texture_unit_idx = -1;
 }
 
 void free_texture_data (texture* tex) {

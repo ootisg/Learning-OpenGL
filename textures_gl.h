@@ -20,9 +20,10 @@ struct texture {
 
 typedef struct texture texture;
 
+void textures_init ();
 texture* texture_load_from_file (void* loc, char* file_path);
-GLuint texture_enable (texture* tex);
-GLuint texture_disable (texture* tex);
+int texture_enable (texture* tex);
+int texture_disable (texture* tex);
 void free_texture_data (texture* tex);
 
 #endif
