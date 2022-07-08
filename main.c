@@ -9,6 +9,7 @@
 #include "shaders_gl.h"
 #include "textures_gl.h"
 #include "render.h"
+#include "matrix.h"
 
 #define WINDOW_RESOLUTION_WIDTH 1280
 #define WINDOW_RESOLUTION_HEIGHT 720

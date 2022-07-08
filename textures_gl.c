@@ -48,12 +48,15 @@ texture* texture_load_from_file (void* loc, char* file_path) {
 					GL_UNSIGNED_BYTE,
 					tex->img_data );
 					
+	//Free the loaded image data
+	free_texture_data (tex);
+					
 	//Generate the mipmap for this texture
 	glGenerateMipmap (GL_TEXTURE_2D);
 	
 	//Set other parameters accordingly
 	tex->texture_unit_idx = -1;
-	tex->img_data_loaded = 1;
+	tex->img_data_loaded = 0;
 	
 	//Return the texture struct
 	return tex;
@@ -74,11 +77,18 @@ int texture_enable (texture* tex) {
 	return 0;
 }
 
-int texture_disable (texture* tex) {
+void texture_disable (texture* tex) {
 	texture_table[tex->texture_unit_idx] = NULL;
 	tex->texture_unit_idx = -1;
 }
 
 void free_texture_data (texture* tex) {
-	stbi_image_free (tex->img_data);
+	if (tex->img_data) {
+		stbi_image_free (tex->img_data);
+		tex->img_data = NULL;
+	}
+}
+
+void destroy_texture (texture* tex) {
+	//TODO
 }

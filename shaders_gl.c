@@ -30,7 +30,7 @@ char* read_from_file (const char* filename) {
 	for (i = 0; i < len; i++) {
 		contents[i] = fgetc (f);
 	}
-	contents[i + 1] = 0;
+	contents[i] = 0;
 	return contents;
 }
 
