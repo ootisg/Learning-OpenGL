@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <GLFW/glfw3.h>
+
 scene* init_scene (void* loc) {
 	scene* ptr = (scene*)loc;
 }
@@ -33,8 +35,8 @@ void render_frame (scene* render_scene) {
 	mat4* a = malloc (sizeof (mat4));
 	mat4* b = malloc (sizeof (mat4));
 	mat4* c = malloc (sizeof (mat4));
-	matrix_scale4 (a, 0.5, 0.5, 1.0);
-	matrix_rotz4 (b, 3.14159265 / 2);
+	matrix_trans4 (a, 0.5, -0.5, 0.0);
+	matrix_rotz4 (b, glfwGetTime ());
 	matrix_mul4m (c, a, b);
 	GLfloat* gl_mat = malloc (sizeof (GLfloat) * 16);
 	to_gl_matrix4 (gl_mat, c);

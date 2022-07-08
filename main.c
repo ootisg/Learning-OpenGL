@@ -11,7 +11,7 @@
 #include "render.h"
 #include "matrix.h"
 
-#define WINDOW_RESOLUTION_WIDTH 1280
+#define WINDOW_RESOLUTION_WIDTH 720
 #define WINDOW_RESOLUTION_HEIGHT 720
 
 float vertices[] = {
