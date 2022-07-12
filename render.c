@@ -15,14 +15,14 @@ scene* init_scene (void* loc) {
 }
 
 void render_init (scene* init_scene) {
-	//Nothing yet
+	glEnable(GL_DEPTH_TEST); 
 }
 
 void render_frame (scene* render_scene) {
 	
 	//Clear the screen
 	glClearColor (0.2f, 0.3f, 0.3f, 1.0f);
-	glClear (GL_COLOR_BUFFER_BIT);
+	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//Bind the rendering parameters
 	glUseProgram (render_scene->program);
@@ -38,9 +38,10 @@ void render_frame (scene* render_scene) {
 	mat4* a = malloc (sizeof (mat4)); 
 	mat4* b = malloc (sizeof (mat4));
 	//matrix_look_at (a, newv3 (), newv3 (), newv3 ());
-	matrix_rotx4 (model, -0.959931);
+	int rotorder[3] = {0, 1, 2};
+	matrix_rot4 (model, -0.959931 * glfwGetTime () * .5, -0.959931 * glfwGetTime (), 0.0, rotorder);
 	matrix_trans4 (view, 0.0, 0.0, -3.0);
-	matrix_perspective (proj, 3.14 / 4, 1.78, 0.1, 100.0);
+	matrix_perspective (proj, 3.14 / 4, 1.0, 0.1, 100.0);
 	matrix_mul4m (a, proj, view);
 	matrix_mul4m (b, a, model);
 	GLfloat* gl_mat = malloc (sizeof (GLfloat) * 16);
@@ -48,6 +49,6 @@ void render_frame (scene* render_scene) {
 	glUniformMatrix4fv (glGetUniformLocation (render_scene->program, "transform"), 1, GL_FALSE, gl_mat);
 	
 	//Render the vertices
-	glDrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawArrays (GL_TRIANGLES, 0, 36);
 	
 }
