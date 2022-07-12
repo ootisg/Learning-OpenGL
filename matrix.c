@@ -183,7 +183,7 @@ mat4* matrix_ortho (void* loc) {
 
 mat4* matrix_perspective (void* loc, double fov, double aspect, double near, double far) {
 	
-	double len = (2 * sin (fov)) / (1 / near);
+	double len = (2 * sin (fov / 2)) / (1 / near);
 	double height = (len / aspect);
 	double top = height;
 	double bottom = -height;
