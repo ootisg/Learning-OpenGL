@@ -48,6 +48,11 @@ v3* newv3 (double x, double y, double z);
 v4* newv4 (double x, double y, double z, double w);
 
 //Vector math funcs
+//Normalize
+v2* vector_normalize2 (v2* res, v2* v);
+v3* vector_normalize3 (v3* res, v3* v);
+v4* vector_normalize4 (v4* res, v4* v);
+
 //Scaling
 v1* vector_scale1 (v1* res, v1* v, double amt);
 v2* vector_scale2 (v2* res, v2* v, double amt);

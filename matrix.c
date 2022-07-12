@@ -135,6 +135,23 @@ mat4* matrix_rot4 (void* loc, double x, double y, double z, int* rot_order) {
 	
 }
 
+mat4* matrix_look_at (void* loc, v3* eye, v3* at, v3* up) {
+	
+	//The internet told me how to do it
+	v3 x_axis, y_axis, z_axis, tmp;
+	vector_normalize3 (&z_axis, vector_diff3 (&tmp, at, eye));
+	vector_normalize3 (&x_axis, vector_cross3 (&tmp, &z_axis, up));
+	vector_cross3 (&y_axis, &x_axis, &z_axis);
+	
+	mat4* res = (mat4*)loc;
+	matrix_init4 (res,	x_axis.x, x_axis.y, x_axis.z, -vector_dot3 (&x_axis, eye),
+						y_axis.x, y_axis.y, y_axis.z, -vector_dot3 (&y_axis, eye),
+						z_axis.x, z_axis.y, z_axis.z, -vector_dot3 (&z_axis, eye),
+						0,        0,        0,        1);
+	return res;
+	
+}
+
 mat4* matrix_ortho (void* loc) {
 	
 	double near = 0;
@@ -164,14 +181,14 @@ mat4* matrix_ortho (void* loc) {
 	
 }
 
-mat4* matrix_perspective (void* loc) {
+mat4* matrix_perspective (void* loc, double fov, double aspect, double near, double far) {
 	
-	double near = .2;
-	double far = 50;
-	double top = 1;
-	double bottom = -1;
-	double left = -1;
-	double right = 1;
+	double len = (2 * sin (fov)) / (1 / near);
+	double height = (len / aspect);
+	double top = height;
+	double bottom = -height;
+	double left = -len;
+	double right = len;
 	mat4* m = (mat4*)loc;
 	m->elems [0][0] = (2 * near) / (right - left);
 	m->elems [0][1] = 0;
@@ -183,8 +200,8 @@ mat4* matrix_perspective (void* loc) {
 	m->elems [1][3] = 0;
 	m->elems [2][0] = 0;
 	m->elems [2][1] = 0;
-	m->elems [2][2] = -((far + near) / (far - near));
-	m->elems [2][3] = -((2 * far * near) / (far - near));
+	m->elems [2][2] = (-(far + near) / (far - near));
+	m->elems [2][3] = (-(2 * far * near) / (far - near));
 	m->elems [3][0] = 0;
 	m->elems [3][1] = 0;
 	m->elems [3][2] = -1;

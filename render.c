@@ -32,14 +32,19 @@ void render_frame (scene* render_scene) {
 	glUniform1i (glGetUniformLocation (render_scene->program, "tex1"), 0);
 	glUniform1i (glGetUniformLocation (render_scene->program, "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
 	//Transform matrix
-	mat4* a = malloc (sizeof (mat4));
+	mat4* model = malloc (sizeof (mat4));
+	mat4* view = malloc (sizeof (mat4));
+	mat4* proj = malloc (sizeof (mat4));
+	mat4* a = malloc (sizeof (mat4)); 
 	mat4* b = malloc (sizeof (mat4));
-	mat4* c = malloc (sizeof (mat4));
-	matrix_trans4 (a, 0.5, -0.5, 0.0);
-	matrix_rotz4 (b, glfwGetTime ());
-	matrix_mul4m (c, a, b);
+	//matrix_look_at (a, newv3 (), newv3 (), newv3 ());
+	matrix_rotx4 (model, -0.959931);
+	matrix_trans4 (view, 0.0, 0.0, -3.0);
+	matrix_perspective (proj, 3.14 / 4, 1.78, 0.1, 100.0);
+	matrix_mul4m (a, proj, view);
+	matrix_mul4m (b, a, model);
 	GLfloat* gl_mat = malloc (sizeof (GLfloat) * 16);
-	to_gl_matrix4 (gl_mat, c);
+	to_gl_matrix4 (gl_mat, b);
 	glUniformMatrix4fv (glGetUniformLocation (render_scene->program, "transform"), 1, GL_FALSE, gl_mat);
 	
 	//Render the vertices

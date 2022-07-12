@@ -11,15 +11,15 @@
 #include "render.h"
 #include "matrix.h"
 
-#define WINDOW_RESOLUTION_WIDTH 720
+#define WINDOW_RESOLUTION_WIDTH 1280
 #define WINDOW_RESOLUTION_HEIGHT 720
 
 float vertices[] = {
     // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
+     0.5f,  0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+     0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
 };
 
 int elems[] = {
@@ -34,6 +34,20 @@ void framebuffer_size_callback (GLFWwindow* window, int width, int height) {
 }
 
 void init () {
+	/*int i;
+	mat4* mat = malloc (sizeof (mat4));
+	matrix_perspective (mat, 3.14 / 4, 1.0, .2, 50);
+	matrix_print4 (mat);
+	for (i = 0; i < 4; i++) {
+		v4* pos = newv4 (vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2], 1.0);
+		v4* res = malloc (sizeof (v4));
+		matrix_mul4v (res, mat, pos);
+		vertices[i * 8] = res->x / res->w;
+		vertices[i * 8 + 1] = res->y / res->w;
+		vertices[i * 8 + 2] = res->z / res->w;
+		printf ("INITIAL: %f, %f, %f, %f\n", res->x, res->y, res->z, res->w);
+		printf ("DIVIDED: %f, %f, %f\n", res->x / res->w, res->y / res->w, res->z / res->w);
+	}*/
 	textures_init ();
 	render_init (&render_scene);
 	render_scene.program = make_program_from_files ("vertex_shader.glsl", NULL, "frag_shader.glsl");

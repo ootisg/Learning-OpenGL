@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 void printv1 (v1* v) {
 	printf ("[%f]", v->x);
@@ -63,6 +64,31 @@ v3* newv3 (double x, double y, double z) {
 
 v4* newv4 (double x, double y, double z, double w) {
 	return initv4 (malloc (sizeof (v4)), x, y, z, w);
+}
+
+//Normalize
+v2* vector_normalize2 (v2* res, v2* v) {
+	double len = sqrt (v->x * v->x + v->y * v->y);
+	res->x = v->x / len;
+	res->y = v->y / len;
+	return res;
+}
+
+v3* vector_normalize3 (v3* res, v3* v) {
+	double len = sqrt (v->x * v->x + v->y * v->y + v->z * v->z);
+	res->x = v->x / len;
+	res->y = v->y / len;
+	res->z = v->z / len;
+	return res;
+}
+
+v4* vector_normalize4 (v4* res, v4* v) {
+	double len = sqrt (v->x * v->x + v->y * v->y + v->z * v->z + v->w * v->w);
+	res->x = v->x / len;
+	res->y = v->y / len;
+	res->z = v->z / len;
+	res->w = v->w / len;
+	return res;
 }
 
 v1* vector_scale1 (v1* res, v1* v, double amt) {
