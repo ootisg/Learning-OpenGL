@@ -55,10 +55,9 @@ void render_frame (scene* render_scene) {
 		mat4* a = malloc (sizeof (mat4)); 
 		mat4* b = malloc (sizeof (mat4));
 		//matrix_look_at (a, newv3 (), newv3 (), newv3 ());
-		int rotorder[3] = {0, 1, 2};
 		matrix_trans4 (a, cubePositions[i * 3], cubePositions[i * 3 + 1], cubePositions[i * 3 + 2]);
 		float angle = ((-0.959931 / 5) * 2) * i;
-		matrix_rot4 (b, angle * 1.0, angle * .3, angle * .5, rotorder);
+		matrix_rot4 (b, angle, newv3 (1.0, 0.3, 0.5));
 		matrix_mul4m (model, a, b);
 		matrix_trans4 (view, 0.0, 0.0, -3.0);
 		matrix_perspective (proj, 3.14 / 4, 1.0, 0.1, 100.0);

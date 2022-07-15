@@ -103,7 +103,7 @@ mat4* matrix_rotz4 (void* loc, double theta) {
 	return (mat4*)loc;
 }
 
-mat4* matrix_rot4 (void* loc, double x, double y, double z, int* rot_order) {
+mat4* matrix_rotxyz4 (void* loc, double x, double y, double z, int* rot_order) {
 	
 	if (!rot_order) {
 		mat4 rotx, roty, rotz, temp;
@@ -132,6 +132,19 @@ mat4* matrix_rot4 (void* loc, double x, double y, double z, int* rot_order) {
 		matrix_mul4m (res, &temp, &(rots[2]));
 		return res;
 	}
+	
+}
+
+mat4* matrix_rot4 (void* loc, double theta, v3* axis) {
+	
+	mat4* res = (mat4*)loc;
+	v3 u;
+	vector_normalize3 (&u, axis);
+	matrix_init4 (res,	cos (theta) + u.x * u.x * (1 - cos (theta)),		u.x * u.y * (1 - cos (theta)) - u.z * sin (theta),	u.x * u.z * (1 - cos (theta)) + u.y * sin (theta),	0,
+						u.y * u.x * (1 - cos (theta)) + u.z * sin (theta),	cos (theta) + u.y * u.y * (1 - cos (theta)),		u.y * u.z * (1 - cos (theta)) - u.x * sin (theta),	0,
+						u.z * u.x * (1 - cos (theta)) - u.y * sin (theta),	u.z * u.y * (1 - cos (theta)) + u.x * sin (theta),	cos (theta) + u.z * u.z * (1 - cos (theta)),		0,
+						0,													0,													0,													1);
+	return res;
 	
 }
 
