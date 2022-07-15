@@ -20,6 +20,7 @@ void inputs_key_callback (GLFWwindow* window, int key, int scancode, int action,
 
 void inputs_register_callbacks (GLFWwindow* window) {
 	glfwSetKeyCallback (window, inputs_key_callback);
+	glfwSetCursorPosCallback (window, mouse_callback);
 }
 
 int key_down (int glfw_key_code) {

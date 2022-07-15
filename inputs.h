@@ -12,4 +12,6 @@ void inputs_register_callbacks (GLFWwindow* window);
 /// @return 1 if the key is held down, 0 otherwise
 int key_down (int glfw_key_code);
 
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
 #endif

@@ -11,8 +11,8 @@
 #include "render.h"
 #include "matrix.h"
 
-#define WINDOW_RESOLUTION_WIDTH 512
-#define WINDOW_RESOLUTION_HEIGHT 512
+#define WINDOW_RESOLUTION_WIDTH 1280
+#define WINDOW_RESOLUTION_HEIGHT 720
 
 float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -94,7 +94,7 @@ void init () {
 	texture* tex1 = texture_load_from_file (malloc (sizeof (texture)), "resources/container.jpg");
 	texture* tex2 = texture_load_from_file (malloc (sizeof (texture)), "resources/awesomeface.png");
 	texture_enable (tex1);
-	texture_enable (tex2);
+	texture_enable (tex2);  
 	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray (0);
 	glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof (float)));
@@ -121,6 +121,7 @@ int main () {
 		return -1;
 	}
 	glfwMakeContextCurrent (window);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	//Init GLEW
 	glewInit ();
