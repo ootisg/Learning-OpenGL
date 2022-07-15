@@ -1,5 +1,6 @@
 #include "render.h"
 #include "matrix.h"
+#include "inputs.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -9,6 +10,10 @@
 #include <stdlib.h>
 
 #include <GLFW/glfw3.h>
+
+float last_frame = 0;
+
+v3 camera_pos, camera_front, camera_up;
 
 float cubePositions[] = {
     0.0f,  0.0f,  0.0f, 
@@ -29,6 +34,9 @@ scene* init_scene (void* loc) {
 
 void render_init (scene* init_scene) {
 	glEnable(GL_DEPTH_TEST); 
+	initv3 (&camera_pos, 0.0, 0.0, 3.0);
+	initv3 (&camera_front, 0.0, 0.0, -1.0);
+	initv3 (&camera_up, 0.0, 1.0, 0.0);
 }
 
 void render_frame (scene* render_scene) {
@@ -47,15 +55,44 @@ void render_frame (scene* render_scene) {
 	glUniform1i (glGetUniformLocation (render_scene->program, "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
 	
 	//Setup the view matrix
+	if (last_frame == 0) {
+		last_frame = glfwGetTime ();
+	}
+	float delta_time = glfwGetTime () - last_frame;
+	last_frame = glfwGetTime ();
+	float camera_speed = delta_time * 2.5;
+	v3 scaled;
+	if (key_down (GLFW_KEY_W)) {
+		vector_scale3 (&scaled, &camera_front, camera_speed);
+		vector_add3 (&camera_pos, &camera_pos, &scaled);
+	}
+	if (key_down (GLFW_KEY_S)) {
+		vector_scale3 (&scaled, &camera_front, camera_speed);
+		vector_diff3 (&camera_pos, &camera_pos, &scaled);
+	}
+	if (key_down (GLFW_KEY_A)) {
+		v3 strafe;
+		vector_cross3 (&strafe, &camera_up, &camera_front);
+		vector_scale3 (&scaled, &strafe, camera_speed);
+		vector_diff3 (&camera_pos, &camera_pos, &scaled);
+	}
+	if (key_down (GLFW_KEY_D)) {
+		v3 strafe;
+		vector_cross3 (&strafe, &camera_up, &camera_front);
+		vector_scale3 (&scaled, &strafe, camera_speed);
+		vector_add3 (&camera_pos, &camera_pos, &scaled);
+	}
 	mat4* a = malloc (sizeof (mat4)); 
 	mat4* b = malloc (sizeof (mat4));
 	mat4* view = malloc (sizeof (mat4));
 	double radius = 10;
 	double cam_x = cos (glfwGetTime ()) * radius;
 	double cam_z = sin (glfwGetTime ()) * radius;
-	matrix_lookat (a, 		newv3 (cam_x, 0.0, cam_z),
-							newv3 (0.0, 0.0, 0.0),
-							newv3 (0.0, 1.0, 0.0));
+	v3 lookpt;
+	vector_add3 (&lookpt, &camera_pos, &camera_front);
+	matrix_lookat (a, 		&camera_pos,
+							&lookpt,
+							&camera_up);
 	matrix_trans4 (b, 0.0, 0.0, -3.0);
 	matrix_mul4m (view, b, a);
 	
