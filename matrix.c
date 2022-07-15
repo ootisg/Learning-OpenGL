@@ -148,7 +148,7 @@ mat4* matrix_rot4 (void* loc, double theta, v3* axis) {
 	
 }
 
-mat4* matrix_look_at (void* loc, v3* eye, v3* at, v3* up) {
+mat4* matrix_lookat (void* loc, v3* eye, v3* at, v3* up) {
 	
 	//The internet told me how to do it
 	v3 x_axis, y_axis, z_axis, tmp;
@@ -157,10 +157,10 @@ mat4* matrix_look_at (void* loc, v3* eye, v3* at, v3* up) {
 	vector_cross3 (&y_axis, &x_axis, &z_axis);
 	
 	mat4* res = (mat4*)loc;
-	matrix_init4 (res,	x_axis.x, x_axis.y, x_axis.z, -vector_dot3 (&x_axis, eye),
-						y_axis.x, y_axis.y, y_axis.z, -vector_dot3 (&y_axis, eye),
-						z_axis.x, z_axis.y, z_axis.z, -vector_dot3 (&z_axis, eye),
-						0,        0,        0,        1);
+	matrix_init4 (res,	x_axis.x, y_axis.x, z_axis.x, vector_dot3 (&x_axis, eye),
+						x_axis.y, y_axis.y, z_axis.y, vector_dot3 (&y_axis, eye),
+						x_axis.z, y_axis.z, z_axis.z, vector_dot3 (&z_axis, eye),
+						0, 0, 0, 1);
 	return res;
 	
 }

@@ -24,7 +24,7 @@ mat4* matrix_roty4 (void* loc, double theta);
 mat4* matrix_rotz4 (void* loc, double theta);
 mat4* matrix_rotxyz4 (void* loc, double x, double y, double z, int* rot_order);
 mat4* matrix_rot4 (void* loc, double theta, v3* axis);
-mat4* matrix_look_at (void* loc, v3* eye, v3* at, v3* up);
+mat4* matrix_lookat (void* loc, v3* eye, v3* at, v3* up);
 mat4* matrix_perspective (void* loc, double fov, double aspect, double near, double far);
 mat4* matrix_ortho (void* loc);
 mat4* matrix_mul4m (mat4* res, mat4* a, mat4* b);
