@@ -1,28 +1,18 @@
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #include "render.h"
 #include "matrix.h"
 #include "inputs.h"
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "camera.h"
+#include "render_info.h"
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <GLFW/glfw3.h>
-
 float last_frame = 0;
-float last_x = 0;
-float last_y = 0;
-int first_frame = 1;
-float last_w_duration = 0;
-float last_w_time = 0;
-float last_w_press = 0;
-int w_down = 0;
-int speedup = 0;
-
-double pitch = 0;
-double yaw = -3.14159 / 2;
+float delta_time = -1;
 
 v3 camera_pos, camera_direction, camera_up;
 
@@ -39,41 +29,38 @@ float cubePositions[] = {
     -1.3f,  1.0f, -1.5f  
 };
 
+float frame_delta_time () {
+	return delta_time;
+}
+
 scene* init_scene (void* loc) {
 	scene* ptr = (scene*)loc;
 }
 
 void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
 	
-	if (first_frame) {
-		last_x = xpos;
-		last_y = ypos;
-		first_frame = 0;
-	}
-	double offs_x = xpos - last_x;
-	double offs_y = ypos - last_y;
-	float delta_time = glfwGetTime () - last_frame;
-	pitch += offs_y * delta_time * 1.0;
-	yaw -= offs_x * delta_time * 1.0;
-	last_x = xpos;
-	last_y = ypos;
-	if (pitch > 1.55334) {
-		pitch = 1.55334;
-	}
-	if (pitch < -1.55334) {
-		pitch = -1.55334;
-	}
+
 	
 }
 
 void render_init (scene* init_scene) {
 	glEnable(GL_DEPTH_TEST); 
-	initv3 (&camera_pos, 0.0, 0.0, 0.0);
-	initv3 (&camera_direction, 0.0, 0.0, -1.0);
-	initv3 (&camera_up, 0.0, 1.0, 0.0);
+	camera* cam = camera_init (malloc (sizeof (camera)));
+	set_active_camera (cam);
 }
 
 void render_frame (scene* render_scene) {
+	
+	//Save timings related to deltaTime calculation
+	float curr_time = glfwGetTime ();
+	if (last_frame == 0) {
+		last_frame = curr_time;
+	}
+	delta_time = curr_time - last_frame;
+	last_frame = curr_time;
+	
+	//Process key inputs for camera controls
+	camera_process_key_inputs ();
 	
 	//Clear the screen
 	glClearColor (0.2f, 0.3f, 0.3f, 1.0f);
@@ -88,89 +75,13 @@ void render_frame (scene* render_scene) {
 	glUniform1i (glGetUniformLocation (render_scene->program, "tex1"), 0);
 	glUniform1i (glGetUniformLocation (render_scene->program, "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
 	
-	//Calculate deltaTime
-	if (last_frame == 0) {
-		last_frame = glfwGetTime ();
-	}
-	float delta_time = glfwGetTime () - last_frame;
-	last_frame = glfwGetTime ();
-	float camera_speed = delta_time * (speedup ? 10 : 2.5);
-	float camera_rot_speed = delta_time;
-	
-	//Calculate view direction vector based on current pitch and yaw
-	camera_direction.x = cos (yaw) * cos (pitch);
-	camera_direction.y = sin (pitch);
-	camera_direction.z = sin (yaw) * cos (pitch);
-	
-	//WASD movement
-	v3 scaled;
-	if (key_down (GLFW_KEY_W)) {
-		//Down edge of w press detection
-		if (!w_down) {
-			w_down = 1;
-			if (glfwGetTime () - last_w_press < .25 && last_w_time < 0.1) { //Double tap; first tap is < 100ms in length, followed by a second press less than 250ms later
-				speedup = 1;
-			}
-			last_w_press = glfwGetTime ();
-		}
-		//Do movement
-		vector_scale3 (&scaled, &camera_direction, camera_speed);
-		vector_diff3 (&camera_pos, &camera_pos, &scaled);
-		
-	} else {
-		//Up edge of w press detection
-		if (w_down) {
-			w_down = 0;
-			last_w_time = glfwGetTime () - last_w_press;
-		}
-		if (speedup) {
-			speedup = 0;
-		}
-	}
-	if (key_down (GLFW_KEY_S)) {
-		vector_scale3 (&scaled, &camera_direction, camera_speed);
-		vector_add3 (&camera_pos, &camera_pos, &scaled);
-	}
-	//Take cross products for left/right strafe
-	if (key_down (GLFW_KEY_A)) {
-		v3 strafe;
-		vector_cross3 (&strafe, &camera_up, &camera_direction);
-		vector_scale3 (&scaled, &strafe, camera_speed);
-		vector_add3 (&camera_pos, &camera_pos, &scaled);
-	}
-	if (key_down (GLFW_KEY_D)) {
-		v3 strafe;
-		vector_cross3 (&strafe, &camera_up, &camera_direction);
-		vector_scale3 (&scaled, &strafe, camera_speed);
-		vector_diff3 (&camera_pos, &camera_pos, &scaled);
-	}
-	
-	//Space and shift for up and down movement
-	if (key_down (GLFW_KEY_SPACE)) {
-		vector_scale3 (&scaled, &camera_up, camera_speed);
-		vector_add3 (&camera_pos, &camera_pos, &scaled);
-	}
-	if (key_down (GLFW_KEY_LEFT_SHIFT)) {
-		vector_scale3 (&scaled, &camera_up, camera_speed);
-		vector_diff3 (&camera_pos, &camera_pos, &scaled);
-	}
+	camera* cam = get_active_camera ();
 	
 	//Setup the view matrix
-	mat4* view = malloc (sizeof (mat4));
-	double radius = 10;
-	double cam_x = cos (glfwGetTime ()) * radius;
-	double cam_z = sin (glfwGetTime ()) * radius;
-	v3 lookpt;
-	v3 scl;
-	vector_scale3 (&scl, &camera_direction, .001);
-	vector_add3 (&lookpt, &camera_pos, &scl);
-	matrix_lookat (view, 	&camera_pos,
-							&lookpt,
-							&camera_up);
+	mat4* view = camera_get_view_matrix (cam);
 	
 	//Setup the perspective matrix
-	mat4* proj = malloc (sizeof (mat4));
-	matrix_perspective (proj, 3.14 / 4, 1.78, 0.001, 100.0);
+	mat4* proj = camera_get_proj_matrix (cam);
 	
 	for (i = 0; i < 10; i++) {
 		
