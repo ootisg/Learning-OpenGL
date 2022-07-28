@@ -41,9 +41,9 @@ scene* init_scene (void* loc) {
 	ptr->vaos = malloc (sizeof (void*) * ptr->num_objs);
 	ptr->programs = malloc (sizeof (void*) * ptr->num_objs);
 	ptr->models = malloc (sizeof (mat4) * ptr->num_objs);
-	lightPos[0] = 1.2;
+	lightPos[0] = 3.0;
 	lightPos[1] = 1.0;
-	lightPos[2] = 2.0;
+	lightPos[2] = 3.0;
 }
 
 void render_init (scene* init_scene) {
@@ -89,10 +89,13 @@ void render_frame (scene* render_scene) {
 		glBindVertexArray (render_scene->vaos[i]);
 		
 		//
+		lightPos[0] = 1.2 * sin (glfwGetTime ());
+		lightPos[2] = 1.2 * cos (glfwGetTime ());
 		if (i == 0) {
 			glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex1"), 0);
 			glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
 			glUniform3f (glGetUniformLocation (render_scene->programs[0], "lightPos"), lightPos[0], lightPos[1], lightPos[2]);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "eyePos"), cam->pos.x, cam->pos.y, cam->pos.z);
 		} else if (i == 1) {
 			mat4 a, b;
 			matrix_scale4 (&a, 0.2, 0.2, 0.2);
