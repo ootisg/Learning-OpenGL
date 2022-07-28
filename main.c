@@ -14,7 +14,7 @@
 #define WINDOW_RESOLUTION_WIDTH 1280
 #define WINDOW_RESOLUTION_HEIGHT 720
 
-float vertices[] = {
+float obj_vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -58,9 +58,48 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-int elems[] = {
-	0, 1, 2,
-	2, 3, 0
+float light_vertices[] = {
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+
+    -0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,
+
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f, -0.5f,
+
+    -0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f
 };
 
 scene render_scene;
@@ -70,27 +109,16 @@ void framebuffer_size_callback (GLFWwindow* window, int width, int height) {
 }
 
 void init () {
-	/*int i;
-	mat4* mat = malloc (sizeof (mat4));
-	matrix_perspective (mat, 3.14 / 4, 1.0, .2, 50);
-	matrix_print4 (mat);
-	for (i = 0; i < 4; i++) {
-		v4* pos = newv4 (vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2], 1.0);
-		v4* res = malloc (sizeof (v4));
-		matrix_mul4v (res, mat, pos);
-		vertices[i * 8] = res->x / res->w;
-		vertices[i * 8 + 1] = res->y / res->w;
-		vertices[i * 8 + 2] = res->z / res->w;
-		printf ("INITIAL: %f, %f, %f, %f\n", res->x, res->y, res->z, res->w);
-		printf ("DIVIDED: %f, %f, %f\n", res->x / res->w, res->y / res->w, res->z / res->w);
-	}*/
+	
+	init_scene (&render_scene);
 	textures_init ();
 	render_init (&render_scene);
-	render_scene.program = make_program_from_files ("vertex_shader.glsl", NULL, "frag_shader.glsl");
-	glGenVertexArrays (1, &(render_scene.vao));
-	glBindVertexArray (render_scene.vao);
-	VBO* vertex_vbo = VBO_init (malloc (sizeof (VBO)), vertices, sizeof (vertices), GL_ARRAY_BUFFER);
-	VBO* vertex_elem_vbo = VBO_init (malloc (sizeof (VBO)), elems, sizeof (elems), GL_ELEMENT_ARRAY_BUFFER);
+	
+	//Object 0 (cube)
+	render_scene.programs[0] = make_program_from_files ("obj_vertex_shader.glsl", NULL, "obj_frag_shader.glsl");
+	glGenVertexArrays (1, &(render_scene.vaos[0]));
+	glBindVertexArray (render_scene.vaos[0]);
+	VBO* vertex_vbo = VBO_init (malloc (sizeof (VBO)), obj_vertices, sizeof (obj_vertices), GL_ARRAY_BUFFER);
 	texture* tex1 = texture_load_from_file (malloc (sizeof (texture)), "resources/container.jpg");
 	texture* tex2 = texture_load_from_file (malloc (sizeof (texture)), "resources/awesomeface.png");
 	texture_enable (tex1);
@@ -99,6 +127,17 @@ void init () {
 	glEnableVertexAttribArray (0);
 	glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof (float)));
 	glEnableVertexAttribArray (1);
+	matrix_trans4 (&(render_scene.models[0]), 0.0, 0.0, 0.0);
+	
+	//Object 1 (light)
+	render_scene.programs[1] = make_program_from_files ("light_vertex_shader.glsl", NULL, "light_frag_shader.glsl");
+	glGenVertexArrays (1, &(render_scene.vaos[1]));
+	glBindVertexArray (render_scene.vaos[1]);
+	vertex_vbo = VBO_init (malloc (sizeof (VBO)), light_vertices, sizeof (light_vertices), GL_ARRAY_BUFFER);
+	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray (0);
+	matrix_iden4 (&(render_scene.models[1]));
+	
 }
 
 int main () {

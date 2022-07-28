@@ -7,6 +7,8 @@ in vec2 texCoord;
 uniform sampler2D tex1;
 uniform sampler2D tex2;
 
+uniform vec3 lightPos;
+
 void main() {
-	FragColor = mix (texture (tex1, texCoord), texture (tex2, texCoord), 0.2);
+	FragColor = vec4 (1.0, 0.5, 0.31, 1.0);
 }

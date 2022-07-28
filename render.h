@@ -1,12 +1,16 @@
 #ifndef RENDER_H
 #define RENDER_H
 
+#include "matrix.h"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-struct scene { //TODO for now, this just contains a single VAO and a single program
-	GLuint vao;
-	GLuint program;
+struct scene { //TODO for now, this just contains a list of VAOs, a list of programs, and a list of model matrices
+	int num_objs;
+	GLuint* vaos;
+	GLuint* programs;
+	mat4* models;
 };
 
 typedef struct scene scene;

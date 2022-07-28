@@ -16,6 +16,8 @@ float delta_time = -1;
 
 v3 camera_pos, camera_direction, camera_up;
 
+GLfloat lightPos[3];
+
 float cubePositions[] = {
     0.0f,  0.0f,  0.0f, 
     2.0f,  5.0f, -15.0f, 
@@ -35,12 +37,13 @@ float frame_delta_time () {
 
 scene* init_scene (void* loc) {
 	scene* ptr = (scene*)loc;
-}
-
-void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
-	
-
-	
+	ptr->num_objs = 2;
+	ptr->vaos = malloc (sizeof (void*) * ptr->num_objs);
+	ptr->programs = malloc (sizeof (void*) * ptr->num_objs);
+	ptr->models = malloc (sizeof (mat4) * ptr->num_objs);
+	lightPos[0] = 1.2;
+	lightPos[1] = 1.0;
+	lightPos[2] = 2.0;
 }
 
 void render_init (scene* init_scene) {
@@ -66,14 +69,10 @@ void render_frame (scene* render_scene) {
 	glClearColor (0.2f, 0.3f, 0.3f, 1.0f);
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	//Bind the rendering parameters
-	glUseProgram (render_scene->program);
-	glBindVertexArray (render_scene->vao);
-	
 	//Set uniforms
 	int i;
-	glUniform1i (glGetUniformLocation (render_scene->program, "tex1"), 0);
-	glUniform1i (glGetUniformLocation (render_scene->program, "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
+	//glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex1"), 0);
+	//glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
 	
 	camera* cam = get_active_camera ();
 	
@@ -83,27 +82,32 @@ void render_frame (scene* render_scene) {
 	//Setup the perspective matrix
 	mat4* proj = camera_get_proj_matrix (cam);
 	
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 2; i++) {
 		
-		//Transform matrix
-		mat4* a = malloc (sizeof (mat4)); 
-		mat4* b = malloc (sizeof (mat4));
-		mat4* model = malloc (sizeof (mat4));
+		//Set the correct shader program...
+		glUseProgram (render_scene->programs[i]);
+		glBindVertexArray (render_scene->vaos[i]);
 		
-		//Construct the model matrix
-		matrix_trans4 (a, cubePositions[i * 3], cubePositions[i * 3 + 1], cubePositions[i * 3 + 2]);
-		float angle = ((0.959931 / 5) * 2) * i;
-		matrix_rot4 (b, angle, newv3 (1.0, 0.3, 0.5));
-		matrix_mul4m (model, a, b);
+		//
+		if (i == 0) {
+			glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex1"), 0);
+			glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "lightPos"), lightPos[0], lightPos[1], lightPos[2]);
+		} else if (i == 1) {
+			mat4 a, b;
+			matrix_scale4 (&a, 0.2, 0.2, 0.2);
+			matrix_trans4 (&b, lightPos[0], lightPos[1], lightPos[2]);
+			matrix_mul4m (&(render_scene->models[1]), &b, &a);
+		}
 		
-		//Combine the model, view, and proj matrices
-		matrix_mul4m (a, proj, view);
-		matrix_mul4m (b, a, model);
-		
-		//Send the MVP matrix to the vertex shader as a uniform
+		//Send the model, view, and proj matrices to the vertex shader as uniforms
 		GLfloat* gl_mat = malloc (sizeof (GLfloat) * 16);
-		to_gl_matrix4 (gl_mat, b);
-		glUniformMatrix4fv (glGetUniformLocation (render_scene->program, "transform"), 1, GL_FALSE, gl_mat);
+		to_gl_matrix4 (gl_mat, &(render_scene->models[i]));
+		glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[i], "model"), 1, GL_FALSE, gl_mat);
+		to_gl_matrix4 (gl_mat, view);
+		glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[i], "view"), 1, GL_FALSE, gl_mat);
+		to_gl_matrix4 (gl_mat, proj);
+		glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[i], "proj"), 1, GL_FALSE, gl_mat);
 		
 		//Render the vertices
 		glDrawArrays (GL_TRIANGLES, 0, 36);
