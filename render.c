@@ -94,8 +94,15 @@ void render_frame (scene* render_scene) {
 		if (i == 0) {
 			glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex1"), 0);
 			glUniform1i (glGetUniformLocation (render_scene->programs[0], "tex2"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
-			glUniform3f (glGetUniformLocation (render_scene->programs[0], "lightPos"), lightPos[0], lightPos[1], lightPos[2]);
 			glUniform3f (glGetUniformLocation (render_scene->programs[0], "eyePos"), cam->pos.x, cam->pos.y, cam->pos.z);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "material.ambient"), 1.0, 0.5, 0.31);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "material.diffuse"), 1.0, 0.5, 0.31);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "material.specular"), 0.5, 0.5, 0.5);
+			glUniform1f (glGetUniformLocation (render_scene->programs[0], "material.shininess"), 32.0);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.ambient"), 0.2, 0.2, 0.2);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.diffuse"), 0.5, 0.5, 0.5);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.specular"), 1.0, 1.0, 1.0);
+			glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.position"), lightPos[0], lightPos[1], lightPos[2]);
 		} else if (i == 1) {
 			mat4 a, b;
 			matrix_scale4 (&a, 0.2, 0.2, 0.2);
