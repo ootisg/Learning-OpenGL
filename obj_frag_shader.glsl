@@ -1,9 +1,8 @@
 #version 330 core
 
 struct Material {
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	sampler2D diffuse;
+	sampler2D specular;
 	float shininess;
 };
 
@@ -18,9 +17,9 @@ out vec4 FragColor;
 
 flat in vec3 normal;
 in vec3 fragPos;
+in vec2 texturePos;
 
-//uniform sampler2D tex1;
-//uniform sampler2D tex2;
+uniform sampler2D tex2;
 
 uniform Light light;
 uniform Material material;
@@ -31,18 +30,19 @@ vec3 objColor = vec3 (1.0, 0.5, 0.31);
 float highlightStrength = 32;
 
 void main() {
-
-	vec3 ambientColor = light.ambient;
 	
+	//Calculate diffuse component
 	vec3 lightDir = normalize (light.position - fragPos);
 	float diffuse = max (dot (lightDir, normal), 0.0);
 	vec3 diffuseColor = light.diffuse * diffuse;
 	
+	//Calculate specular component
 	vec3 viewDir = normalize (eyePos - fragPos);
 	vec3 reflectDir = reflect (-lightDir, normal);
 	float specular = pow (max (dot (viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specularColor = light.specular * specular;
 	
-	FragColor = vec4 (ambientColor * material.ambient + diffuseColor * material.diffuse + specularColor * material.specular, 0.0);
+	//Output as final vec4
+	FragColor = vec4 (light.ambient * vec3 (texture (material.diffuse, texturePos)) + diffuseColor * vec3 (texture (material.diffuse, texturePos)) + specularColor * vec3 (texture (material.specular, texturePos)), 0.0);
 	
 }
