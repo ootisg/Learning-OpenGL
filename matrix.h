@@ -31,6 +31,7 @@ mat4* matrix_mul4m (mat4* res, mat4* a, mat4* b);
 mat4* matrix_mul4v (v4* res, mat4* m, v4* v);
 mat4* matrix_add4 (mat4* res, mat4* a, mat4* b);
 mat4* matrix_diff4 (mat4* res, mat4* a, mat4* b);
+mat4* matrix_inverse4 (mat4* res, mat4* mat);
 GLfloat* to_gl_matrix4 (GLfloat* loc, mat4* mat);
 
 #endif

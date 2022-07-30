@@ -7,7 +7,7 @@ struct Material {
 };
 
 struct Light {
-	vec3 position;
+	vec3 direction;
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;	
@@ -15,7 +15,7 @@ struct Light {
 
 out vec4 FragColor;
 
-flat in vec3 normal;
+flat in vec3 correctedNormal;
 in vec3 fragPos;
 in vec2 texturePos;
 
@@ -31,14 +31,15 @@ float highlightStrength = 32;
 
 void main() {
 	
+	vec3 lightDir = -normalize (light.direction);
+	
 	//Calculate diffuse component
-	vec3 lightDir = normalize (light.position - fragPos);
-	float diffuse = max (dot (lightDir, normal), 0.0);
+	float diffuse = max (dot (lightDir, correctedNormal), 0.0);
 	vec3 diffuseColor = light.diffuse * diffuse;
 	
 	//Calculate specular component
 	vec3 viewDir = normalize (eyePos - fragPos);
-	vec3 reflectDir = reflect (-lightDir, normal);
+	vec3 reflectDir = reflect (-lightDir, correctedNormal);
 	float specular = pow (max (dot (viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specularColor = light.specular * specular;
 	

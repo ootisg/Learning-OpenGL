@@ -223,6 +223,26 @@ mat4* matrix_perspective (void* loc, double fov, double aspect, double near, dou
 	
 }
 
+mat4* matrix_mul4f (mat4* res, mat4* mat, float f) {
+	res->elems [0][0] = mat->elems[0][0] * f;
+	res->elems [0][1] = mat->elems[0][1] * f;
+	res->elems [0][2] = mat->elems[0][2] * f;
+	res->elems [0][3] = mat->elems[0][3] * f;
+	res->elems [1][0] = mat->elems[1][0] * f;
+	res->elems [1][1] = mat->elems[1][1] * f;
+	res->elems [1][2] = mat->elems[1][2] * f;
+	res->elems [1][3] = mat->elems[1][3] * f;
+	res->elems [2][0] = mat->elems[2][0] * f;
+	res->elems [2][1] = mat->elems[2][1] * f;
+	res->elems [2][2] = mat->elems[2][2] * f;
+	res->elems [2][3] = mat->elems[2][3] * f;
+	res->elems [3][0] = mat->elems[3][0] * f;
+	res->elems [3][1] = mat->elems[3][1] * f;
+	res->elems [3][2] = mat->elems[3][2] * f;
+	res->elems [3][3] = mat->elems[3][3] * f;
+	return (mat4*)res;
+}
+
 mat4* matrix_mul4m (mat4* res, mat4* a, mat4* b) {
 	res->elems [0][0] = a->elems [0][0] * b->elems [0][0] + a->elems [0][1] * b->elems [1][0] + a->elems [0][2] * b->elems [2][0] + a->elems [0][3] * b->elems [3][0];
 	res->elems [0][1] = a->elems [0][0] * b->elems [0][1] + a->elems [0][1] * b->elems [1][1] + a->elems [0][2] * b->elems [2][1] + a->elems [0][3] * b->elems [3][1];
@@ -289,6 +309,67 @@ mat4* matrix_diff4 (mat4* res, mat4* a, mat4* b) {
 	res->elems [3][2] = a->elems[3][2] - b->elems[3][2];
 	res->elems [3][3] = a->elems[3][3] - b->elems[3][3];
 	return (mat4*)res;
+}
+
+//Helper function for matrix_inverse4
+float compute_cofactor4 (mat4* mat, int r, int c) {
+	float working[3][3];
+	int i, j, wr, wc;
+	wr = 0;
+	wc = 0;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			if (i != r && j != c) {
+				working[wr][wc] = mat->elems[i][j];
+				wc++;
+			}
+		}
+		wc = 0;
+		if (i != r) {
+			wr++;
+		}
+	}
+	float det = working[0][0] * working[1][1] * working[2][2] +
+				working[0][1] * working[1][2] * working[2][0] +
+				working[0][2] * working[1][0] * working[2][1] -
+				working[2][0] * working[1][1] * working[0][2] -
+				working[2][1] * working[1][2] * working[0][0] -
+				working[2][2] * working[1][0] * working[0][1];
+	return det;
+}
+
+mat4* matrix_transpose4 (mat4* res, mat4* mat) {
+	res->elems[0][0] = mat->elems[0][0];
+	res->elems[0][1] = mat->elems[1][0];
+	res->elems[0][2] = mat->elems[2][0];
+	res->elems[0][3] = mat->elems[3][0];
+	res->elems[1][0] = mat->elems[0][1];
+	res->elems[1][1] = mat->elems[1][1];
+	res->elems[1][2] = mat->elems[2][1];
+	res->elems[1][3] = mat->elems[3][1];
+	res->elems[2][0] = mat->elems[0][2];
+	res->elems[2][1] = mat->elems[1][2];
+	res->elems[2][2] = mat->elems[2][2];
+	res->elems[2][3] = mat->elems[3][2];
+	res->elems[3][0] = mat->elems[0][3];
+	res->elems[3][1] = mat->elems[1][3];
+	res->elems[3][2] = mat->elems[2][3];
+	res->elems[3][3] = mat->elems[3][3];
+	return res;
+}
+
+mat4* matrix_inverse4 (mat4* res, mat4* mat) {
+	int i, j;
+	mat4 cofactor;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			(&cofactor)->elems[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * compute_cofactor4 (mat, i, j);
+		}
+	}
+	float det = (&cofactor)->elems[0][0] * mat->elems[0][0] + (&cofactor)->elems[0][1] * mat->elems[0][1] + (&cofactor)->elems[0][2] * mat->elems[0][2] + (&cofactor)->elems[0][3] * mat->elems[0][3];
+	matrix_transpose4 (res, &cofactor);
+	matrix_mul4f (res, res, 1 / det);
+	return res;
 }
 
 GLfloat* to_gl_matrix4 (GLfloat* loc, mat4* mat) {
