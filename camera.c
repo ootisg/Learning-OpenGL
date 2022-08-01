@@ -14,7 +14,10 @@ float last_w_duration = 0;
 float last_w_time = 0;
 float last_w_press = 0;
 int w_down = 0;
+int f_down = 0;
 int speedup = 0;
+
+int flashlight = 1;
 
 camera* camera_init (void* loc) {
 	
@@ -63,6 +66,10 @@ mat4* camera_get_view_matrix (camera* cam) {
 mat4* camera_get_proj_matrix (camera* cam) {
 	matrix_perspective (&(cam->proj_matrix), cam->fov, cam->aspect, cam->near, cam->far);
 	return &(cam->proj_matrix);
+}
+
+int flashlight_active () {
+	return flashlight;
 }
 
 void camera_mouse_callback (GLFWwindow* window, double xpos, double ypos) {
@@ -118,6 +125,16 @@ void camera_scroll_callback (GLFWwindow* window, double xoffset, double yoffset)
 void camera_process_key_inputs () {
 	
 	if (active_camera != NULL) {
+		
+		//Flashlight
+		if (key_down (GLFW_KEY_F)) {
+			if (f_down == 0) {
+				flashlight = !flashlight;
+			}
+			f_down = 1;
+		} else {
+			f_down = 0;
+		}
 		
 		//WASD movement
 		v3 scaled;

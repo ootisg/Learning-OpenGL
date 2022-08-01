@@ -68,5 +68,7 @@ void camera_mouse_callback (GLFWwindow* window, double xpos, double ypos);
 void camera_scroll_callback (GLFWwindow* window, double xoffset, double yoffset);
 /// Function to process key inputs for one frame; must be manually called by the user once every frame. Key inputs control the active camera's movement
 void camera_process_key_inputs ();
+/// Returns non-zero if the flashlight is active
+int flashlight_active ();
 
 #endif

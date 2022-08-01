@@ -31,6 +31,13 @@ float cubePositions[] = {
     -1.3f,  1.0f, -1.5f  
 };
 
+float pointLightPositions[] = {
+	0.7f,  0.2f,  2.0f,
+	2.3f, -3.3f, -4.0f,
+	-4.0f,  2.0f, -12.0f,
+	0.0f,  0.0f, -3.0f
+}; 
+
 float frame_delta_time () {
 	return delta_time;
 }
@@ -57,6 +64,12 @@ void render_init (scene* init_scene) {
 	glEnable(GL_DEPTH_TEST); 
 	camera* cam = camera_init (malloc (sizeof (camera)));
 	set_active_camera (cam);
+}
+
+//Assumes a large enough buffer in dest
+char* getuniformarrstr (char* dest, char* name, int index, char* attribute) {
+	sprintf (dest, "%s[%d].%s", name, index, attribute);
+	return dest;
 }
 
 void render_frame (scene* render_scene) {
@@ -89,37 +102,67 @@ void render_frame (scene* render_scene) {
 	//Setup the perspective matrix
 	mat4* proj = camera_get_proj_matrix (cam);
 	
-	for (i = 0; i < 1; i++) {
+	for (i = 0; i < 5; i++) {
 		
 		//Set the correct shader program...
-		glUseProgram (render_scene->programs[i]);
-		glBindVertexArray (render_scene->vaos[i]);
+		int model_idx = i > 0 ? 1 : i;
+		glUseProgram (render_scene->programs[model_idx]);
+		glBindVertexArray (render_scene->vaos[model_idx]);
 		
-		//
-		lightPos[0] = 1.2 * sin (glfwGetTime ());
-		lightPos[2] = 1.2 * cos (glfwGetTime ());
+		//Select the correct point light
+		if (i > 0) {
+			lightPos[0] = pointLightPositions [i * 3];
+			lightPos[1] = pointLightPositions [i * 3 + 1];
+			lightPos[2] = pointLightPositions [i * 3 + 2];
+		}
+		
+		//Render
 		int j;
 		for (j = 0; j < (i == 0 ? 10 : 1); j++) {
+			mat4 lightModel;
 			if (i == 0) {
+				//Set up uniforms for the object shader
 				glUniform1i (glGetUniformLocation (render_scene->programs[0], "material.diffuse"), 0);
 				glUniform1i (glGetUniformLocation (render_scene->programs[0], "material.specular"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
 				glUniform3f (glGetUniformLocation (render_scene->programs[0], "eyePos"), cam->pos.x, cam->pos.y, cam->pos.z);
-				//glUniform3f (glGetUniformLocation (render_scene->programs[0], "material.ambient"), 1.0, 0.5, 0.31);
-				//glUniform3f (glGetUniformLocation (render_scene->programs[0], "material.diffuse"), 1.0, 0.5, 0.31);
 				glUniform3f (glGetUniformLocation (render_scene->programs[0], "material.specular"), 0.5, 0.5, 0.5);
 				glUniform1f (glGetUniformLocation (render_scene->programs[0], "material.shininess"), 32.0);
-				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.ambient"), 0.2, 0.2, 0.2);
-				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.diffuse"), 0.8, 0.8, 0.8);
-				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.specular"), 1.0, 1.0, 1.0);
-				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.position"), cam->pos.x, cam->pos.y, cam->pos.z);
-				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
+				
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "dirLight.ambient"), 0.2, 0.2, 0.2);
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "dirLight.diffuse"), 0.8, 0.8, 0.8);
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "dirLight.specular"), 1.0, 1.0, 1.0);
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "dirLight.direction"), 0.0, -1.0, 0.0);
 				glUniform1f (glGetUniformLocation (render_scene->programs[0], "light.cutoff"), cos (.436332));
 				glUniform1f (glGetUniformLocation (render_scene->programs[0], "light.outerCutoff"), cos (0.610865));
-			} else if (i == 1) {
+				
+				char buff[1024];
+				int lidx;
+				for (lidx = 0; lidx < 4; lidx++) {
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], getuniformarrstr (buff, "pointLights", lidx, "position")), pointLightPositions[lidx * 3], pointLightPositions[lidx * 3 + 1], pointLightPositions[lidx * 3 + 2]);
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], getuniformarrstr (buff, "pointLights", lidx, "ambient")), 0.2, 0.2, 0.2);
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], getuniformarrstr (buff, "pointLights", lidx, "diffuse")), 0.8, 0.8, 0.8);
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], getuniformarrstr (buff, "pointLights", lidx, "specular")), 1.0, 1.0, 1.0);
+					glUniform1f (glGetUniformLocation (render_scene->programs[0], getuniformarrstr (buff, "pointLights", lidx, "constant")), 1.0);
+					glUniform1f (glGetUniformLocation (render_scene->programs[0], getuniformarrstr (buff, "pointLights", lidx, "linear")), 0.14);
+					glUniform1f (glGetUniformLocation (render_scene->programs[0], getuniformarrstr (buff, "pointLights", lidx, "quadratic")), 0.07);
+				}
+				
+				if (flashlight_active ()) {
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], "spotlight.diffuse"), 0.8, 0.8, 0.8);
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], "spotlight.specular"), 1.0, 1.0, 1.0);
+				} else {
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], "spotlight.diffuse"), 0.0, 0.0, 0.0);
+					glUniform3f (glGetUniformLocation (render_scene->programs[0], "spotlight.specular"), 0.0, 0.0, 0.0);
+				}
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "spotlight.position"), cam->pos.x, cam->pos.y, cam->pos.z);
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "spotlight.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
+				glUniform1f (glGetUniformLocation (render_scene->programs[0], "spotlight.innerCutoff"), cos (.436332)); //25 degrees
+				glUniform1f (glGetUniformLocation (render_scene->programs[0], "spotlight.outerCutoff"), cos (.610865)); //35 degrees
+			} else {
 				mat4 a, b;
 				matrix_scale4 (&a, 0.2, 0.2, 0.2);
-				matrix_trans4 (&b, lightPos[0], lightPos[1], lightPos[2]);
-				matrix_mul4m (&(render_scene->models[1]), &b, &a);
+				matrix_trans4 (&b, pointLightPositions [(i - 1) * 3], pointLightPositions [(i - 1) * 3 + 1], pointLightPositions [(i - 1) * 3 + 2]);
+				matrix_mul4m (&lightModel, &b, &a);
 			}
 			
 			//Send the model, view, and proj matrices to the vertex shader as uniforms
@@ -130,18 +173,18 @@ void render_frame (scene* render_scene) {
 			matrix_rot4 (&a, 0.349066 * j, &rot_axis);
 			matrix_trans4 (&b, cubePositions[j * 3], cubePositions[j * 3 + 1], cubePositions[j * 3 + 2]);
 			matrix_mul4m (&cubeModel, &b, &a);
-			mat4* model = (i == 0 ? &cubeModel : &(render_scene->models[i]));
+			mat4* model = (i == 0 ? &cubeModel : &lightModel);
 			mat4 normal;
 			matrix_inverse4 (&a, model);
 			matrix_transpose4 (&normal, &a);
 			to_gl_matrix4 (gl_mat, model);
-			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[i], "model"), 1, GL_FALSE, gl_mat);
+			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[model_idx], "model"), 1, GL_FALSE, gl_mat);
 			to_gl_matrix4 (gl_mat, &normal);
-			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[i], "normal"), 1, GL_FALSE, gl_mat);
+			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[model_idx], "normal"), 1, GL_FALSE, gl_mat);
 			to_gl_matrix4 (gl_mat, view);
-			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[i], "view"), 1, GL_FALSE, gl_mat);
+			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[model_idx], "view"), 1, GL_FALSE, gl_mat);
 			to_gl_matrix4 (gl_mat, proj);
-			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[i], "proj"), 1, GL_FALSE, gl_mat);
+			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[model_idx], "proj"), 1, GL_FALSE, gl_mat);
 			
 			//Render the vertices
 			glDrawArrays (GL_TRIANGLES, 0, 36);
