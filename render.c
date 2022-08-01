@@ -89,7 +89,7 @@ void render_frame (scene* render_scene) {
 	//Setup the perspective matrix
 	mat4* proj = camera_get_proj_matrix (cam);
 	
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < 1; i++) {
 		
 		//Set the correct shader program...
 		glUseProgram (render_scene->programs[i]);
@@ -111,10 +111,10 @@ void render_frame (scene* render_scene) {
 				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.ambient"), 0.2, 0.2, 0.2);
 				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.diffuse"), 0.8, 0.8, 0.8);
 				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.specular"), 1.0, 1.0, 1.0);
-				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.position"), lightPos[0], lightPos[1], lightPos[2]);
-				glUniform1f (glGetUniformLocation (render_scene->programs[0], "light.constant"), 1.0);
-				glUniform1f (glGetUniformLocation (render_scene->programs[0], "light.linear"), 0.09);
-				glUniform1f (glGetUniformLocation (render_scene->programs[0], "light.quadratic"), 0.032);
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.position"), cam->pos.x, cam->pos.y, cam->pos.z);
+				glUniform3f (glGetUniformLocation (render_scene->programs[0], "light.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
+				glUniform1f (glGetUniformLocation (render_scene->programs[0], "light.cutoff"), cos (.436332));
+				glUniform1f (glGetUniformLocation (render_scene->programs[0], "light.outerCutoff"), cos (0.610865));
 			} else if (i == 1) {
 				mat4 a, b;
 				matrix_scale4 (&a, 0.2, 0.2, 0.2);
