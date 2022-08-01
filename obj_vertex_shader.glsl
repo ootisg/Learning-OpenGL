@@ -15,7 +15,7 @@ uniform mat4 proj;
 
 void main() {
    correctedNormal = normalize (mat3 (normal) * vertexNormal);
-   fragPos = aPos;
+   fragPos = vec3 (model * vec4 (aPos, 0.0));
    texturePos = texCoords;
    gl_Position = proj * view * model * vec4(aPos, 1.0);
 }
