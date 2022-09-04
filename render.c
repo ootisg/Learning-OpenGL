@@ -55,6 +55,7 @@ scene* init_scene (void* loc) {
 	ptr->vaos = malloc (sizeof (void*) * ptr->num_objs);
 	ptr->programs = malloc (sizeof (void*) * ptr->num_objs);
 	ptr->models = malloc (sizeof (mat4) * ptr->num_objs);
+	ptr->model_sizes = malloc (sizeof (int) * ptr->num_objs);
 	lightPos[0] = 3.0;
 	lightPos[1] = 1.0;
 	lightPos[2] = 3.0;
@@ -102,25 +103,18 @@ void render_frame (scene* render_scene) {
 	//Setup the perspective matrix
 	mat4* proj = camera_get_proj_matrix (cam);
 	
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < 1; i++) {
 		
 		//Set the correct shader program...
 		int model_idx = i > 0 ? 1 : i;
 		glUseProgram (render_scene->programs[model_idx]);
 		glBindVertexArray (render_scene->vaos[model_idx]);
 		
-		//Select the correct point light
-		if (i > 0) {
-			lightPos[0] = pointLightPositions [i * 3];
-			lightPos[1] = pointLightPositions [i * 3 + 1];
-			lightPos[2] = pointLightPositions [i * 3 + 2];
-		}
-		
 		//Render
 		int j;
 		for (j = 0; j < (i == 0 ? 10 : 1); j++) {
 			mat4 lightModel;
-			if (i == 0) {
+			if (i == 0 || i == 1) {
 				//Set up uniforms for the object shader
 				glUniform1i (glGetUniformLocation (render_scene->programs[0], "material.diffuse"), 0);
 				glUniform1i (glGetUniformLocation (render_scene->programs[0], "material.specular"), 1); //We really ought to be querying the texture structs here instead of assuming their texture units
@@ -158,21 +152,18 @@ void render_frame (scene* render_scene) {
 				glUniform3f (glGetUniformLocation (render_scene->programs[0], "spotlight.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
 				glUniform1f (glGetUniformLocation (render_scene->programs[0], "spotlight.innerCutoff"), cos (.436332)); //25 degrees
 				glUniform1f (glGetUniformLocation (render_scene->programs[0], "spotlight.outerCutoff"), cos (.610865)); //35 degrees
-			} else {
-				mat4 a, b;
-				matrix_scale4 (&a, 0.2, 0.2, 0.2);
-				matrix_trans4 (&b, pointLightPositions [(i - 1) * 3], pointLightPositions [(i - 1) * 3 + 1], pointLightPositions [(i - 1) * 3 + 2]);
-				matrix_mul4m (&lightModel, &b, &a);
 			}
 			
 			//Send the model, view, and proj matrices to the vertex shader as uniforms
 			GLfloat* gl_mat = malloc (sizeof (GLfloat) * 16);
-			mat4 a, b, cubeModel;
+			mat4 aa, ab, a, b, cubeModel;
 			v3 rot_axis;
 			initv3 (&rot_axis, 1.0, 0.3, 0.5);
+			matrix_scale4 (&aa, 0.25, 0.25, 0.25);
 			matrix_rot4 (&a, 0.349066 * j, &rot_axis);
 			matrix_trans4 (&b, cubePositions[j * 3], cubePositions[j * 3 + 1], cubePositions[j * 3 + 2]);
-			matrix_mul4m (&cubeModel, &b, &a);
+			matrix_mul4m (&ab, &b, &a);
+			matrix_mul4m (&cubeModel, &ab, &aa);
 			mat4* model = (i == 0 ? &cubeModel : &lightModel);
 			mat4 normal;
 			matrix_inverse4 (&a, model);
@@ -187,7 +178,7 @@ void render_frame (scene* render_scene) {
 			glUniformMatrix4fv (glGetUniformLocation (render_scene->programs[model_idx], "proj"), 1, GL_FALSE, gl_mat);
 			
 			//Render the vertices
-			glDrawArrays (GL_TRIANGLES, 0, 36);
+			glDrawArrays (GL_TRIANGLES, 0, render_scene->model_sizes[i]);
 		}
 	
 	}

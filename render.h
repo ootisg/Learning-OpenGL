@@ -8,6 +8,7 @@
 
 struct scene { //TODO for now, this just contains a list of VAOs, a list of programs, and a list of model matrices
 	int num_objs;
+	int* model_sizes;
 	GLuint* vaos;
 	GLuint* programs;
 	mat4* models;

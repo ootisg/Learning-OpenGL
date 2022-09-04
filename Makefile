@@ -1,5 +1,5 @@
 main: main.c inputs buffers_gl shaders_gl textures_gl vector matrix render camera
-	gcc -g main.c inputs.o buffers_gl.o shaders_gl.o textures_gl.o render.o camera.o vector.o matrix.o -lglfw3 -lopengl32 -lgdi32 -lglew32 -Iinclude
+	gcc -g main.c inputs.o buffers_gl.o shaders_gl.o textures_gl.o render.o camera.o vector.o matrix.o lib/assimp-vc142-mt.dll -lglfw3 -lopengl32 -lgdi32 -lglew32 -Iinclude
 inputs: inputs.c inputs.h
 	gcc -c -g inputs.c -Iinclude
 buffers_gl: buffers_gl.c buffers_gl.h
