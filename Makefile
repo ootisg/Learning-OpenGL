@@ -1,5 +1,5 @@
-main: main.c inputs buffers_gl shaders_gl textures_gl vector matrix render camera
-	gcc -g main.c inputs.o buffers_gl.o shaders_gl.o textures_gl.o render.o camera.o vector.o matrix.o lib/assimp-vc142-mt.dll -lglfw3 -lopengl32 -lgdi32 -lglew32 -Iinclude
+main: main.c inputs buffers_gl shaders_gl textures_gl vector matrix render camera material scene model mesh
+	gcc -g main.c inputs.o buffers_gl.o shaders_gl.o textures_gl.o render.o camera.o vector.o matrix.o scene.o model.o mesh.o lib/assimp-vc142-mt.dll -lglfw3 -lopengl32 -lgdi32 -lglew32 -Iinclude
 inputs: inputs.c inputs.h
 	gcc -c -g inputs.c -Iinclude
 buffers_gl: buffers_gl.c buffers_gl.h
@@ -16,3 +16,11 @@ render: render.c render.h render_info.h
 	gcc -c -g render.c -Iinclude
 camera: camera.c camera.h
 	gcc -c -g camera.c -Iinclude
+material: material.c material.h
+	gcc -c -g material.c -Iinclude
+mesh: mesh.c mesh.h
+	gcc -c -g mesh.c -Iinclude
+model:
+	gcc -c -g model.c -Iinclude
+scene:
+	gcc -c -g scene.c -Iinclude
