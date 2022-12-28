@@ -20,4 +20,6 @@ struct model {
 
 typedef struct model model;
 
+model* init_model (void* loc, void* parent_scene, struct aiNode* src_node, struct aiScene* src_scene);
+
 #endif
