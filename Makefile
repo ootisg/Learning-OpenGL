@@ -20,7 +20,7 @@ material: material.c material.h
 	gcc -c -g material.c -Iinclude
 mesh: mesh.c mesh.h
 	gcc -c -g mesh.c -Iinclude
-model:
+model: model.c model.h
 	gcc -c -g model.c -Iinclude
-scene:
+scene: scene.c scene.h
 	gcc -c -g scene.c -Iinclude
