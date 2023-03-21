@@ -165,30 +165,30 @@ mat4* matrix_lookat (void* loc, v3* eye, v3* at, v3* up) {
 	
 }
 
-mat4* matrix_ortho (void* loc) {
+mat4* matrix_ortho (void* loc, double fov, double aspect, double near, double far) {
 	
-	double near = 0;
-	double far = 50;
-	double top = 1;
-	double bottom = -1;
-	double left = -1;
-	double right = 1;
+	double len = (2 * sin (fov / 2)) / (1 / near);
+	double height = (len / aspect);
+	double top = height;
+	double bottom = -height;
+	double left = -len;
+	double right = len;
 	mat4* m = (mat4*)loc;
 	m->elems [0][0] = 2 / (right - left);
-	m->elems [1][0] = 0;
-	m->elems [2][0] = 0;
-	m->elems [3][0] = -((right + left) / (right - left));
 	m->elems [0][1] = 0;
+	m->elems [0][2] = 0;
+	m->elems [0][3] = -((right + left) / (right - left));
+	m->elems [1][0] = 0;
 	m->elems [1][1] = 2 / (top - bottom);
-	m->elems [2][1] = 1;
-	m->elems [3][1] = 0;
-	m->elems [0][2] = -((top + bottom) / (top - bottom));
-	m->elems [1][2] = 0;
-	m->elems [2][2] = -2 / (near - far);
-	m->elems [3][2] = -((far + near) / (far - near));
-	m->elems [0][3] = 0;
+	m->elems [1][2] = 1;
 	m->elems [1][3] = 0;
-	m->elems [2][3] = 0;
+	m->elems [2][0] = -((top + bottom) / (top - bottom));
+	m->elems [2][1] = 0;
+	m->elems [2][2] = -2 / (far - near);
+	m->elems [2][3] = -((far + near) / (far - near));
+	m->elems [3][0] = 0;
+	m->elems [3][1] = 0;
+	m->elems [3][2] = 0;
 	m->elems [3][3] = 1;
 	return m;
 	

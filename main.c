@@ -4,19 +4,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <stdbool.h>
-#include <assimp/cimport.h>        // Plain-C interface
-#include <assimp/scene.h>          // Output data structure
-#include <assimp/postprocess.h>    // Post processing flags
-#include <assimp/mesh.h>
-#include <assimp/vector3.h>
-
 #include "inputs.h"
 #include "buffers_gl.h"
 #include "shaders_gl.h"
 #include "textures_gl.h"
 #include "render.h"
 #include "matrix.h"
+#include "scene.h"
 
 #define WINDOW_RESOLUTION_WIDTH 1280
 #define WINDOW_RESOLUTION_HEIGHT 720
@@ -119,55 +113,33 @@ void framebuffer_size_callback (GLFWwindow* window, int width, int height) {
 	glViewport (0, 0, width, height);
 }
 
-DoTheSceneProcessing(const struct aiScene* scene) {
-	printf ("%d\n", scene->mNumMeshes);
-	struct aiMesh** meshes = scene->mMeshes;
-	int i;
-	for (i = 0; i < scene->mNumMeshes; i++) {
-		struct aiMesh* curr = meshes[i];
-		int numVertices = curr->mNumVertices;
-		struct aiVector3D* vertices = curr->mVertices;
-		struct aiVector3D* normals = curr->mNormals;
-		teapot_size = numVertices;
-		teapot_mesh = malloc (numVertices * 8 * sizeof (float));
-		int j = 0;
-		for (j = 0; j < numVertices; j++) {
-			struct aiVector3D currPos = vertices[j];
-			struct aiVector3D currNorm = normals[j];
-			teapot_mesh[j * 8] = currPos.x;
-			teapot_mesh[j * 8 + 1] = currPos.y;
-			teapot_mesh[j * 8 + 2] = currPos.z;
-			teapot_mesh[j * 8 + 3] = currNorm.x;
-			teapot_mesh[j * 8 + 4] = currNorm.y;
-			teapot_mesh[j * 8 + 5] = currNorm.z;
-			teapot_mesh[j * 8 + 6] = 0;
-			teapot_mesh[j * 8 + 7] = 0;
-		}
+import_teapog () {
+	
+	scenee* sc = malloc (sizeof (scenee));
+	import_scene (sc, "resources/models/teapot/teapot.obj");
+	model* top = sc->objects;
+	printf ("%d\n", top->root_node->children->num_meshes);
+	
+	mesh* curr = top->root_node->children->meshes[0];
+	int numVertices = curr->num_vertices;
+	float* vertices = curr->vertex_positions;
+	float* normals = curr->vertex_normals;
+	teapot_size = numVertices;
+	teapot_mesh = malloc (numVertices * 8 * sizeof (float));
+	int j = 0;
+	for (j = 0; j < numVertices; j++) {
+		float* currPos = &(vertices[j * 3]);
+		float* currNorm = &(normals[j * 3]);
+		teapot_mesh[j * 8] = *currPos;
+		teapot_mesh[j * 8 + 1] = *(currPos + 1);
+		teapot_mesh[j * 8 + 2] = *(currPos + 2);
+		teapot_mesh[j * 8 + 3] = *currNorm;
+		teapot_mesh[j * 8 + 4] = *(currNorm + 1);
+		teapot_mesh[j * 8 + 5] = *(currNorm + 2);
+		teapot_mesh[j * 8 + 6] = 0;
+		teapot_mesh[j * 8 + 7] = 0;
 	}
-}
-
-bool DoTheImportThing( const char* pFile) {
-  // Start the import on the given file with some example postprocessing
-  // Usually - if speed is not the most important aspect for you - you'll t
-  // probably to request more postprocessing than we do in this example.
-  const struct aiScene* scene = aiImportFile( pFile,
-    aiProcess_CalcTangentSpace       |
-    aiProcess_Triangulate            |
-	aiProcess_GenNormals 			 |
-    aiProcess_SortByPType);
-
-  // If the import failed, report it
-  if( NULL == scene) {
-	printf ("%s\n", aiGetErrorString());
-    return false;
-  }
-
-  // Now we can access the file's contents
-  DoTheSceneProcessing( scene);
-
-  // We're done. Release all resources associated with this import
-  aiReleaseImport( scene);
-  return true;
+	
 }
 
 void init () {
@@ -176,7 +148,7 @@ void init () {
 	textures_init ();
 	render_init (&render_scene);
 	
-	DoTheImportThing("resources/models/teapot/teapot.obj");
+	import_teapog ();
 	
 	//Object 0 (cube)
 	render_scene.programs[0] = make_program_from_files ("obj_vertex_shader.glsl", NULL, "obj_frag_shader.glsl");
