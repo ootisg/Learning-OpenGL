@@ -1,7 +1,7 @@
 #ifndef TEXTURES_GL_H
 #define TEXTURES_GL_H
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 /// @struct texture
 ///	@brief The wrapper struct for an OpenGL texture

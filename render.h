@@ -3,7 +3,7 @@
 
 #include "matrix.h"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 struct scene { //TODO for now, this just contains a list of VAOs, a list of programs, and a list of model matrices
