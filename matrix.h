@@ -3,7 +3,7 @@
 
 #include "vector.h"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 struct mat4 {
 	double elems[4][4];

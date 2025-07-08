@@ -1,7 +1,7 @@
 #ifndef BUFFERS_GL_H
 #define BUFFERS_GL_H
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 /// @struct VBO
 ///	@brief The wrapper struct for a VBO

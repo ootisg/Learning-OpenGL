@@ -1,7 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 /// Allocates an OpenGL program object using the given shader sources and returns its handle
 /// @param vertex_shader the source for the vertex shader to use
