@@ -4,8 +4,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "vector.h"
-#include "matrix.h"
+#include <vector.h>
+#include <matrix.h>
 
 /// @struct camera
 ///	@brief An encapsulation of camera state. Includes parameters relevant to computing a view and a projection matrix.

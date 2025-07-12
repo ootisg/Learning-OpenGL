@@ -151,7 +151,7 @@ void init () {
 	import_teapog ();
 	
 	//Object 0 (cube)
-	render_scene.programs[0] = make_program_from_files ("obj_vertex_shader.glsl", NULL, "obj_frag_shader.glsl");
+	render_scene.programs[0] = make_program_from_files ("shaders/obj_vertex_shader.glsl", NULL, "shaders/obj_frag_shader.glsl");
 	glGenVertexArrays (1, &(render_scene.vaos[0]));
 	glBindVertexArray (render_scene.vaos[0]);
 	VBO* vertex_vbo = VBO_init (malloc (sizeof (VBO)), teapot_mesh, teapot_size * 8 * sizeof (float), GL_ARRAY_BUFFER);
@@ -169,7 +169,7 @@ void init () {
 	matrix_scale4 (&(render_scene.models[0]), 0.25, 0.25, 0.25);
 	
 	//Object 1 (teapot)
-	render_scene.programs[1] = make_program_from_files ("obj_vertex_shader.glsl", NULL, "obj_frag_shader.glsl");
+	render_scene.programs[1] = make_program_from_files ("shaders/obj_vertex_shader.glsl", NULL, "shaders/obj_frag_shader.glsl");
 	glGenVertexArrays (1, &(render_scene.vaos[1]));
 	glBindVertexArray (render_scene.vaos[1]);
 	vertex_vbo = VBO_init (malloc (sizeof (VBO)), teapot_mesh, teapot_size * 8 * sizeof (float), GL_ARRAY_BUFFER);
