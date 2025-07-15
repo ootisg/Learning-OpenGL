@@ -4,12 +4,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "inputs.h"
+#include <inputs.h>
+#include <matrix.h>
+
 #include "buffers_gl.h"
 #include "shaders_gl.h"
 #include "textures_gl.h"
 #include "render.h"
-#include "matrix.h"
 #include "scene.h"
 
 #define WINDOW_RESOLUTION_WIDTH 1280
@@ -227,7 +228,8 @@ int main () {
 	while (!glfwWindowShouldClose (window)) {
 		
 		//Input detection
-		inputs_register_callbacks (window);
+		inputs_bind_keyboard_callbacks (window);
+		camera_bind_mouse_callbacks (window);
 		
 		//Render
 		render_frame (&render_scene);

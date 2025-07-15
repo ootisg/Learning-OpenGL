@@ -72,6 +72,11 @@ int flashlight_active () {
 	return flashlight;
 }
 
+void camera_bind_mouse_callbacks (GLFWwindow* window) {
+	glfwSetCursorPosCallback (window, camera_mouse_callback);
+	glfwSetScrollCallback (window, camera_scroll_callback);
+}
+
 void camera_mouse_callback (GLFWwindow* window, double xpos, double ypos) {
 	
 	//Setup mouse x and y correctly to prevent view jumps on frame 1

@@ -62,6 +62,8 @@ mat4* camera_get_view_matrix (camera* cam);
 /// @return the projection matrix calculated from the cam's projection parameters
 mat4* camera_get_proj_matrix (camera* cam);
 
+/// Binds mouse callbacks for camera control to the GLFW mouse events
+void camera_bind_mouse_callbacks (GLFWwindow* window);
 /// Active camera callback for mouse motion; mouse movement controls the view direction of the active camera. Function parameters are as specified by GLFW
 void camera_mouse_callback (GLFWwindow* window, double xpos, double ypos);
 /// Active camera callback for mouse scrolling; mouse scrollign controls the zoom of the active camera by adjusting its FOV. Function parameters are as specified by GLFW

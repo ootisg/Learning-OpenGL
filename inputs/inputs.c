@@ -1,5 +1,4 @@
 #include "inputs.h"
-#include "camera.h"
 
 #include <stdio.h>
 
@@ -19,10 +18,8 @@ void inputs_key_callback (GLFWwindow* window, int key, int scancode, int action,
 	
 }
 
-void inputs_register_callbacks (GLFWwindow* window) {
+void inputs_bind_keyboard_callbacks (GLFWwindow* window) {
 	glfwSetKeyCallback (window, inputs_key_callback);
-	glfwSetCursorPosCallback (window, camera_mouse_callback);
-	glfwSetScrollCallback (window, camera_scroll_callback);
 }
 
 int key_down (int glfw_key_code) {

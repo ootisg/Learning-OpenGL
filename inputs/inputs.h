@@ -4,9 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-/// Registers the default input callbacks to the given window
+/// Registers the default keyboard callback to the given window
 /// @param the window to use for input callbacks
-void inputs_register_callbacks (GLFWwindow* window);
+void inputs_bind_keyboard_callbacks (GLFWwindow* window);
 
 /// Checks if the specified key is currently held down
 /// @param glfw_key_code the key code to check for
