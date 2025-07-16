@@ -6,6 +6,3 @@ add_library(linalg STATIC
 
 target_include_directories(linalg PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_include_directories(linalg PRIVATE
-    ${CMAKE_SOURCE_DIR}/include)

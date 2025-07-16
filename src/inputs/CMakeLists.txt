@@ -5,6 +5,3 @@ add_library(inputs STATIC
 
 target_include_directories(inputs PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_include_directories(inputs PRIVATE
-    ${CMAKE_SOURCE_DIR}/include)
